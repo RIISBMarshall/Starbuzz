@@ -5,6 +5,8 @@ import android.database.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
+
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -63,19 +65,32 @@ public class DrinkActivity extends AppCompatActivity {
 
     public void onFavoriteClicked(View view){
         int drinkNo = (Integer) getIntent().getExtras().get("drinkNo");
-        CheckBox favorite = (CheckBox) findViewById(R.id.favorite);
-        ContentValues drinkValues = new ContentValues();
-        drinkValues.put("FAVORITE", favorite.isChecked());
-        SQLiteOpenHelper starbuzzDatabaseHelper = new StarbuzzDatabaseHelper(DrinkActivity.this);
+        new UpdateDrinkTask().execute(drinkNo);
+    }
 
+    private class UpdateDrinkTask extends AsyncTask<Integer, Void, Boolean> {
+        ContentValues drinkValues;
+
+        protected void onPreExecute(){
+            CheckBox favorite = (CheckBox) findViewById(R.id.favorite);
+            drinkValues = new ContentValues();
+            drinkValues.put("FAVORITE", favorite.isChecked());
+        }
+
+        protected Boolean doInBackground(Integer... drinks){
+            int drinkNo = drinks[0];
+            SQLiteOpenHelper starbuzzDatabaseHelper =
+                    new StarbuzzDatabaseHelper(DrinkActivity.this);
         try {
             SQLiteDatabase db = starbuzzDatabaseHelper.getWritableDatabase("password");
             db.update("DRINK", drinkValues,
                     "_id = ?", new String[] {Integer.toString(drinkNo)});
             db.close();
+            return true;
         } catch(SQLiteException e){
-            Toast toast = Toast.makeText(this, "Database unavailable", Toast.LENGTH_SHORT);
-            toast.show();
+            return false;
         }
+
+    }
     }
 }
