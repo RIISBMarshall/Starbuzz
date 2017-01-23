@@ -2,9 +2,9 @@ package com.example.bmarshall.starbuzz;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
+import net.sqlcipher.database.SQLiteOpenHelper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -26,7 +26,7 @@ public class DrinkActivity extends AppCompatActivity {
 
         try{
             SQLiteOpenHelper starbuzzDatabaseHelper = new StarbuzzDatabaseHelper(this);
-            SQLiteDatabase db = starbuzzDatabaseHelper.getWritableDatabase();
+            SQLiteDatabase db = starbuzzDatabaseHelper.getWritableDatabase("password");
             Cursor cursor = db.query ("DRINK",
                     new String[] {"NAME", "DESCRIPTION", "IMAGE_RESOURCE_ID", "FAVORITE"},
                     "_id = ?",
@@ -69,7 +69,7 @@ public class DrinkActivity extends AppCompatActivity {
         SQLiteOpenHelper starbuzzDatabaseHelper = new StarbuzzDatabaseHelper(DrinkActivity.this);
 
         try {
-            SQLiteDatabase db = starbuzzDatabaseHelper.getWritableDatabase();
+            SQLiteDatabase db = starbuzzDatabaseHelper.getWritableDatabase("password");
             db.update("DRINK", drinkValues,
                     "_id = ?", new String[] {Integer.toString(drinkNo)});
             db.close();

@@ -3,9 +3,9 @@ package com.example.bmarshall.starbuzz;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
+import net.sqlcipher.database.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,6 +13,8 @@ import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
+
+import java.io.File;
 
 public class TopLevelActivity extends Activity {
 
@@ -23,6 +25,16 @@ public class TopLevelActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top_level);
+
+        SQLiteDatabase.loadLibs(this);
+
+        File databaseFile = getDatabasePath("starbuzz");
+        databaseFile.mkdirs();
+        //databaseFile.delete();
+        db = SQLiteDatabase.openOrCreateDatabase(databaseFile, "password", null);
+        db.close();
+        
+
 
         AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> listView, View v, int position, long id) {
@@ -38,7 +50,7 @@ public class TopLevelActivity extends Activity {
         ListView listFavorites = (ListView) findViewById(R.id.list_favorites);
         try {
             SQLiteOpenHelper starbuzzDatabaseHelper = new StarbuzzDatabaseHelper(this);
-            db = starbuzzDatabaseHelper.getReadableDatabase();
+            db = starbuzzDatabaseHelper.getReadableDatabase("password");
             favoritesCursor = db.query("DRINK",
                     new String[]{"_id", "NAME"},
                     "FAVORITE = 1",
@@ -51,6 +63,7 @@ public class TopLevelActivity extends Activity {
                             new String[]{"NAME"},
                             new int[]{android.R.id.text1}, 0);
             listFavorites.setAdapter(favoriteAdapter);
+            db.close();
         } catch (SQLiteException e) {
             Toast toast = Toast.makeText(this, "Database unavailable", Toast.LENGTH_SHORT);
             toast.show();
@@ -77,7 +90,7 @@ public class TopLevelActivity extends Activity {
         super.onRestart();
         try{
             StarbuzzDatabaseHelper starbuzzDatabaseHelper = new StarbuzzDatabaseHelper(this);
-            db = starbuzzDatabaseHelper.getReadableDatabase();
+            db = starbuzzDatabaseHelper.getReadableDatabase("password");
             Cursor newCursor = db.query("DRINK",
                     new String[] { "_id", "NAME"},
                     "FAVORITE = 1",
@@ -86,6 +99,7 @@ public class TopLevelActivity extends Activity {
             CursorAdapter adapter = (CursorAdapter) listFavorites.getAdapter();
             adapter.changeCursor(newCursor);
             favoritesCursor = newCursor;
+            db.close();
         } catch(SQLiteException e){
             Toast toast = Toast.makeText(this, "Database unavailable", Toast.LENGTH_SHORT);
             toast.show();

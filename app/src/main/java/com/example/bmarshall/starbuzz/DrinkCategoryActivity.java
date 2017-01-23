@@ -3,9 +3,9 @@ package com.example.bmarshall.starbuzz;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
+import net.sqlcipher.database.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CursorAdapter;
@@ -25,7 +25,7 @@ public class DrinkCategoryActivity extends ListActivity {
 
         try{
             SQLiteOpenHelper starbuzzDatabaseHelper = new StarbuzzDatabaseHelper(this);
-            db = starbuzzDatabaseHelper.getReadableDatabase();
+            db = starbuzzDatabaseHelper.getReadableDatabase("password");
 
             cursor = db.query("DRINK",
                     new String[]{"_id", "NAME"},
